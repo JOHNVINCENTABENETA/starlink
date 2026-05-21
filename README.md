@@ -1,8 +1,6 @@
 # Starlink Data Usage Scraper 🛰️
 
-A self-contained Python scraper that extracts **daily and monthly data usage (GB)** from embedded Starlink account HTML pages and exports everything into a single organized CSV file.
-
-> **No HTML files needed** — the billing-period pages are already embedded inside `scraper.py`.
+A Python scraper that extracts **daily and monthly data usage (GB)** from saved Starlink account HTML pages and exports everything into a single organized CSV file.
 
 ---
 
@@ -37,12 +35,22 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Run the scraper
+### 4. Add your HTML files
+Place the saved Starlink billing-period HTML pages inside the `html_pages/` folder:
+```
+html_pages/
+  Nov-Dec.html
+  Dec-Jan.html
+  Jan-Feb.html
+  Feb-Mar.html
+  Mar-Apr.html
+  May-Jun.html
+```
+
+### 5. Run the scraper
 ```bash
 python scraper.py
 ```
-
-That's it — no extra files or folders needed.
 
 ---
 
@@ -62,16 +70,16 @@ It combines monthly totals and daily rows in chronological order:
 
 ### Example
 ```
-type,          date,           data_usage_gb, bar,                       billing_period
-MONTHLY TOTAL, November 2024,  201.50,        ██████████░░░░░░  201.50 GB,
-daily,         2024-11-17,     17.54,         ████████░░░░░░░░  17.54 GB,  Nov 17-Dec 16 2024
-daily,         2024-11-18,     13.24,         ██████░░░░░░░░░░  13.24 GB,  Nov 17-Dec 16 2024
+type,          date,           data_usage_gb,  bar,                              billing_period
+MONTHLY TOTAL, November 2024,  201.50,         ██████████░░░░░░░░░░  201.50 GB,
+daily,         2024-11-17,     17.54,          ████████░░░░░░░░░░░░  17.54 GB,   Nov 17-Dec 16 2024
+daily,         2024-11-18,     13.24,          ██████░░░░░░░░░░░░░░  13.24 GB,   Nov 17-Dec 16 2024
 ...
-MONTHLY TOTAL, December 2024,  590.08,        ████████████████  590.08 GB,
-daily,         2024-12-01,     12.17,         ██████░░░░░░░░░░  12.17 GB,  Nov 17-Dec 16 2024
+MONTHLY TOTAL, December 2024,  590.08,         ████████████████████  590.08 GB,
+daily,         2024-12-01,     12.17,          ██████░░░░░░░░░░░░░░  12.17 GB,   Nov 17-Dec 16 2024
 ```
 
-### Terminal summary printed on run
+### Terminal output on run
 ```
   🛰️  Starlink Data Usage — Summary
   ──────────────────────────────────────────────
@@ -85,7 +93,11 @@ daily,         2024-12-01,     12.17,         ██████░░░░░�
   ──────────────────────────────────────────────
   November 2024   ██████████████░░░░░░░░░░░░░░░░░░░░░░░░░░  201.50 GB
   December 2024   ████████████████████████████████████████  590.08 GB
-  ...
+  January 2025    ██████████████████████████░░░░░░░░░░░░░░  380.55 GB
+  February 2025   ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  120.80 GB
+  March 2025      █████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░  197.55 GB
+  April 2025      ████████████████████░░░░░░░░░░░░░░░░░░░░  297.59 GB
+  May 2025        ██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   94.83 GB
   ──────────────────────────────────────────────
 
   ✅  starlink_data_usage.csv — daily + monthly combined
@@ -97,19 +109,26 @@ daily,         2024-12-01,     12.17,         ██████░░░░░�
 
 The Starlink account page renders a **MUI bar chart (SVG)** for each billing period. The scraper:
 
-1. Decodes the embedded HTML pages (gzip-compressed + base64-encoded inside `scraper.py`)
+1. Reads each HTML file from the `html_pages/` folder
 2. Parses the HTML with **BeautifulSoup**
 3. Reads the Y-axis tick labels (e.g. `0 GB`, `20 GB`, `40 GB`) and their SVG `translate` positions to compute a pixel-to-GB scale factor
 4. Converts each bar's pixel height to a GB value
 5. Groups daily data by calendar month to compute monthly totals
-6. Writes one combined CSV: a **MONTHLY TOTAL** header row followed by each day's row, for every month
+6. Writes one combined CSV: a **MONTHLY TOTAL** header row followed by each day in that month
 
 ---
 
 ## Project Structure
 ```
 starlink-scraper/
-├── scraper.py              ← run this (HTML data embedded inside)
+├── html_pages/             ← place your Starlink HTML files here
+│   ├── Nov-Dec.html
+│   ├── Dec-Jan.html
+│   ├── Jan-Feb.html
+│   ├── Feb-Mar.html
+│   ├── Mar-Apr.html
+│   └── May-Jun.html
+├── scraper.py              ← main scraping script
 ├── requirements.txt        ← dependencies + usage steps
 ├── README.md
 └── starlink_data_usage.csv ← generated after running scraper.py
