@@ -1,1 +1,41 @@
-beautifulsoup4==4.12.3
+# Starlink Data Usage Scraper — Requirements
+# ============================================
+#
+# HOW TO USE THIS REPO
+# --------------------
+#
+# NOTE: The HTML files are already embedded inside scraper.py.
+#       You do NOT need to download or place any HTML files manually.
+#
+# 1. Clone the repository
+#    git clone https://github.com/<your-username>/starlink-scraper.git
+#    cd starlink-scraper
+#
+# 2. (Recommended) Create and activate a virtual environment
+#    python -m venv venv
+#
+#    On Windows:
+#      venv\Scripts\activate
+#    On macOS/Linux:
+#      source venv/bin/activate
+#
+# 3. Install dependencies
+#    pip install -r requirements.txt
+#
+# 4. Run the scraper
+#    python scraper.py
+#
+# 5. Output — one combined CSV file is generated:
+#    starlink_data_usage.csv
+#
+#    CSV columns:
+#      type            – "MONTHLY TOTAL" or "daily"
+#      date            – Month name + year (for totals) or YYYY-MM-DD (for daily)
+#      data_usage_gb   – GB consumed (2 decimal places)
+#      bar             – Visual bar chart of usage
+#      billing_period  – Starlink billing period label (daily rows only)
+#
+# Python version: 3.8+
+
+beautifulsoup4==4.14.3
+lxml==6.0.2
