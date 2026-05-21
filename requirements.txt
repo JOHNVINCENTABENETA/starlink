@@ -4,9 +4,6 @@
 # HOW TO USE THIS REPO
 # --------------------
 #
-# NOTE: The HTML files are already embedded inside scraper.py.
-#       You do NOT need to download or place any HTML files manually.
-#
 # 1. Clone the repository
 #    git clone https://github.com/<your-username>/starlink-scraper.git
 #    cd starlink-scraper
@@ -22,15 +19,23 @@
 # 3. Install dependencies
 #    pip install -r requirements.txt
 #
-# 4. Run the scraper
+# 4. Place the Starlink HTML files inside the html_pages/ folder:
+#      html_pages/Nov-Dec.html
+#      html_pages/Dec-Jan.html
+#      html_pages/Jan-Feb.html
+#      html_pages/Feb-Mar.html
+#      html_pages/Mar-Apr.html
+#      html_pages/May-Jun.html
+#
+# 5. Run the scraper
 #    python scraper.py
 #
-# 5. Output — one combined CSV file is generated:
+# 6. Output — one combined CSV file is generated:
 #    starlink_data_usage.csv
 #
 #    CSV columns:
 #      type            – "MONTHLY TOTAL" or "daily"
-#      date            – Month name + year (for totals) or YYYY-MM-DD (for daily)
+#      date            – Month + year for totals, or YYYY-MM-DD for daily rows
 #      data_usage_gb   – GB consumed (2 decimal places)
 #      bar             – Visual bar chart of usage
 #      billing_period  – Starlink billing period label (daily rows only)
