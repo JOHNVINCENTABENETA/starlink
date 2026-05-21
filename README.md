@@ -1,66 +1,116 @@
-# Starlink Usage Scraper
+# Starlink Data Usage Scraper 🛰️
 
-A Python utility that extracts structured daily data usage from a saved Starlink account dashboard HTML file. The script converts the visual bar chart into accurate, readable CSV data mapped to your billing cycle.
+A self-contained Python scraper that extracts **daily and monthly data usage (GB)** from embedded Starlink account HTML pages and exports everything into a single organized CSV file.
 
----
-
-## How It Works
-
-1. Reads the total data usage displayed on the page to establish a GB baseline.
-2. Calculates a pixel-to-GB ratio from the bar chart heights.
-3. Anchors the billing cycle to the **17th of the month** and maps each bar to its correct calendar date.
-4. Exports the result to `data_usage.csv`.
+> **No HTML files needed** — the billing-period pages are already embedded inside `scraper.py`.
 
 ---
 
 ## Requirements
 
-- Python 3.x
-- [beautifulsoup4](https://pypi.org/project/beautifulsoup4/) — HTML parsing
+- Python 3.8+
+- pip
 
 ---
 
-## Setup
+## Setup & Usage
 
-**1. Install the dependency**
-
+### 1. Clone the repo
 ```bash
-pip install beautifulsoup4
+git clone https://github.com/<your-username>/starlink-scraper.git
+cd starlink-scraper
 ```
 
-**2. Add your HTML file**
+### 2. Create and activate a virtual environment (recommended)
+```bash
+python -m venv venv
 
-Save your Starlink account page as an HTML file and place it in the same folder as `scraper.py`. Any `.html` file in the folder will be picked up automatically.
+# Windows:
+venv\Scripts\activate
 
-**3. Run the scraper**
+# macOS/Linux:
+source venv/bin/activate
+```
 
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run the scraper
 ```bash
 python scraper.py
 ```
+
+That's it — no extra files or folders needed.
 
 ---
 
 ## Output
 
-Generates `data_usage.csv` with two columns:
+One CSV file is generated: **`starlink_data_usage.csv`**
 
-| Date | Data Usage (GB) |
-|---|---|
-| 04/17/2026 | 22.79 |
-| 04/18/2026 | 18.42 |
-| … | … |
+It combines monthly totals and daily rows in chronological order:
 
----
+| Column | Description |
+|--------|-------------|
+| `type` | `MONTHLY TOTAL` or `daily` |
+| `date` | Month + year for totals (e.g. `November 2024`), or `YYYY-MM-DD` for daily rows |
+| `data_usage_gb` | Data consumed in GB (2 decimal places) |
+| `bar` | Visual bar chart of usage relative to the peak |
+| `billing_period` | Starlink billing period label (daily rows only) |
 
-## Notes
-
-- The script anchors to the **17th** as the billing cycle start date. If the "Last Updated" timestamp on the page falls before the 17th, it automatically rolls back to the previous month's 17th.
-- The pixel-to-GB ratio is derived from the page's own **Total Data Usage** figure, so the sum of all daily values will match exactly what Starlink reports.
-
----
-
-## Dependencies
-
+### Example
 ```
-beautifulsoup4
+type,          date,           data_usage_gb, bar,                       billing_period
+MONTHLY TOTAL, November 2024,  201.50,        ██████████░░░░░░  201.50 GB,
+daily,         2024-11-17,     17.54,         ████████░░░░░░░░  17.54 GB,  Nov 17-Dec 16 2024
+daily,         2024-11-18,     13.24,         ██████░░░░░░░░░░  13.24 GB,  Nov 17-Dec 16 2024
+...
+MONTHLY TOTAL, December 2024,  590.08,        ████████████████  590.08 GB,
+daily,         2024-12-01,     12.17,         ██████░░░░░░░░░░  12.17 GB,  Nov 17-Dec 16 2024
+```
+
+### Terminal summary printed on run
+```
+  🛰️  Starlink Data Usage — Summary
+  ──────────────────────────────────────────────
+  📅  Days tracked   : 182
+  📊  Total usage    : 1882.90 GB
+  📈  Daily average  : 10.35 GB
+  🔥  Peak day       : 45.09 GB  (2025-05-17)
+  ──────────────────────────────────────────────
+
+  📆  Monthly Breakdown
+  ──────────────────────────────────────────────
+  November 2024   ██████████████░░░░░░░░░░░░░░░░░░░░░░░░░░  201.50 GB
+  December 2024   ████████████████████████████████████████  590.08 GB
+  ...
+  ──────────────────────────────────────────────
+
+  ✅  starlink_data_usage.csv — daily + monthly combined
+```
+
+---
+
+## How It Works
+
+The Starlink account page renders a **MUI bar chart (SVG)** for each billing period. The scraper:
+
+1. Decodes the embedded HTML pages (gzip-compressed + base64-encoded inside `scraper.py`)
+2. Parses the HTML with **BeautifulSoup**
+3. Reads the Y-axis tick labels (e.g. `0 GB`, `20 GB`, `40 GB`) and their SVG `translate` positions to compute a pixel-to-GB scale factor
+4. Converts each bar's pixel height to a GB value
+5. Groups daily data by calendar month to compute monthly totals
+6. Writes one combined CSV: a **MONTHLY TOTAL** header row followed by each day's row, for every month
+
+---
+
+## Project Structure
+```
+starlink-scraper/
+├── scraper.py              ← run this (HTML data embedded inside)
+├── requirements.txt        ← dependencies + usage steps
+├── README.md
+└── starlink_data_usage.csv ← generated after running scraper.py
 ```
